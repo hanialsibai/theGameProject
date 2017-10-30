@@ -9,8 +9,6 @@ Game interaction
 */
 
 
-var gameChar_x;
-var gameChar_y;
 var floorPos_y;
 
 var isLeft = false;
@@ -56,13 +54,13 @@ var head = {
 		height: 14
 	};
 
-var jewel = {x_pos: 100, y_pos: 100, size: 50, isFound: false};
-var canyon = {x_pos: 300, width: 100};
+var totem = {x_pos: 100, y_pos: 425, size: 45, isFound: false};
+var canyon = {x_pos: 300, width: 50};
 
 function setup()
 {
     createCanvas(1024, 576);
-    floorPos_y = height * 3/4;
+    floorPos_y = height * 3/4 - 29;
    charPos_x = width/2;
    charPos_y = floorPos_y;
 	
@@ -77,19 +75,30 @@ function setup()
 
 function draw()
 {
-    background(100,155,255); //fill the sky blue
+    background(170); //sky
 
+	// ground
     noStroke();
-    fill(0,155,0);
-    rect(0, floorPos_y, width, height - floorPos_y); //draw some green ground
+    fill(80);
+    rect(0, floorPos_y + 29, width, height - floorPos_y); 
 
 
     //draw the canyon
-    fill(50,50,0);
-    rect(canyon.x_pos, floorPos_y, canyon.width, height - floorPos_y);
+    fill(255);
+    rect(canyon.x_pos, floorPos_y + 29, canyon.width, height - floorPos_y);
 	
 	
-
+	// totem
+	if ( !totem.isFound) {
+		
+	noFill();
+ 	stroke(255);
+	strokeWeight(4);
+ 	ellipse(totem.x_pos, totem.y_pos, totem.size, totem.size - 25);
+ 	ellipse(totem.x_pos, totem.y_pos - 20, totem.size - 10, totem.size - 30);
+   ellipse(totem.x_pos, totem.y_pos - 35, totem.size - 15, totem.size - 35 );
+ 	ellipse(totem.x_pos - 2, totem.y_pos - 50, totem.size - 30, totem.size - 30);
+	}
 
     //the game character
     if(isLeft && isJumping)
@@ -557,6 +566,39 @@ function draw()
 	
     }
 	
+	// game over
+	if( charPos_y > height ) {
+		
+		textSize( 100);
+		fill(200, 0, 0 );
+		textAlign(CENTER);
+		text( " GAME OVER ", width / 2, height * 1/2 );
+	}
+	if( abs( charPos_x - totem.x_pos) < 15 ) totem.isFound = true;
+	
+	if( ( charPos_x >= canyon.x_pos ) && ( charPos_x <= canyon.x_pos + canyon.width ) && !isJumping ) {
+		
+		isFalling = true;
+		
+	} else {
+		if ( charPos_y <= floorPos_y )
+		isFalling = false;
+	}
+	if( isFalling ) {
+		
+		if( charPos_x < canyon.x_pos ) {
+			
+			charPos_x = canyon.x_pos + 5;
+		}
+		
+		if( charPos_x > canyon.x_pos + canyon.width ) {
+			
+			charPos_x = canyon.x_pos + canyon.width - 5;
+		}
+		
+		charPos_y += 5;
+		
+	}
 	if( isLeft ) {
 		
 		charPos_x -= 5;
@@ -566,19 +608,19 @@ function draw()
 		charPos_x += 5;
 	}
 	
-	if( isJumping && floorPos_y - charPos_y < 50 ) {
+	if( isJumping && floorPos_y - charPos_y < 60 ) {
 		
+
 		charPos_y -= 5;
+		
 	}
+	
+	if( charPos_y == floorPos_y - 50 ) isJumping = false;
 	
 	if( charPos_y < floorPos_y  && !isJumping) {
 			
-			charPos_y += 1;
+			charPos_y += 2;
 		}
-	
-
-	
-	
 	
 }
 
