@@ -62,7 +62,7 @@ function setup()
     createCanvas(1024, 576);
     floorPos_y = height * 3/4 - 29;
    charPos_x = width/2;
-   charPos_y = floorPos_y;
+   charPos_y = floorPos_y ;
 	
 	controls = {
 		jump : 38,
@@ -574,8 +574,9 @@ function draw()
 		textAlign(CENTER);
 		text( " GAME OVER ", width / 2, height * 1/2 );
 	}
-	if( abs( charPos_x - totem.x_pos) < 15 ) totem.isFound = true;
+	if( charPos_x >=totem.x_pos - 30 && charPos_x <= totem.x_pos + 30 && charPos_y <= totem.y_pos && charPos_y >= totem.y_pos - 70 ) totem.isFound = true;
 	
+	// canyon detection
 	if( ( charPos_x >= canyon.x_pos ) && ( charPos_x <= canyon.x_pos + canyon.width ) && !isJumping ) {
 		
 		isFalling = true;
@@ -615,12 +616,16 @@ function draw()
 		
 	}
 	
-	if( charPos_y == floorPos_y - 50 ) isJumping = false;
+if( charPos_y == floorPos_y - 50 ) isJumping = false;
 	
 	if( charPos_y < floorPos_y  && !isJumping) {
 			
 			charPos_y += 2;
 		}
+	
+	// wall detection
+	if( charPos_x > width + 20 ) charPos_x = 0;
+	if( charPos_x < -20) charPos_x = width;
 	
 }
 
