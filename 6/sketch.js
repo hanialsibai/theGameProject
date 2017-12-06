@@ -5,18 +5,33 @@ The Game Project 5 - Making a complete level
 Week 7
 
 */
+// world variables
 
-var gameChar_x;
-var gameChar_y;
 var floorPos_y;
 var scrollPos;
 var realPos;
+var houseX;
+var housePos_y;
+var clouds;
+var mountain;
+var tree;
 
-var isLeft;
-var isRight;
-var isJumping;
-var isFalling;
+var canyon = [ 
+ 	{x_pos: 300, width: 100},
+ 	{x_pos: 15, width: 85},
+ 	{x_pos: 600, width: 73},
+ 	{x_pos: 900, width: 60}
+ 	]
 
+var totems = [ 
+	{x_pos: 100, y_pos: 450, size: 45, isFound: false},
+	{x_pos: 400, y_pos: 450, size: 35, isFound: false},
+	{x_pos: 800, y_pos: 450, size: 55, isFound: false}
+]
+// character variables 
+
+var gameChar_x;
+var gameChar_y;
 var relative = {
 		torso_x : -43,
 		torso_y : -103,
@@ -50,176 +65,32 @@ var head = {
 		width : 14,
 		height: 14
 	};
-var totems = {x_pos: 100, y_pos: 450, size: 45, isFound: false};
 
-
-var houseX;
-var housePos_y;
-var clouds;
-var mountain;
-var tree;
-var canyon = {x_pos: 300, width: 50};
+// Gameplay variables
+var lives;
+var isLeft;
+var isRight;
+var isJumping;
+var isFalling;
+var isLost;
+var score;
+var isWon;
 
 function setup()
-{
+{	
 	createCanvas(1024, 576);
+	lives = 3;
 	floorPos_y = height * 3/4;
-	gameChar_x = width/2;
-	gameChar_y = floorPos_y;
-
-	// Variable to control the background scrolling.
-	scrollPos = 0;
-
-	// Variable to store the real position of the gameChar in the game
-	// world. Needed for collision detection.
-	realPos = gameChar_x - scrollPos;
-
-	// Boolean variables to control the movement of the game character.
-	isLeft = false;
-	isRight = false;
-	isJumping = false;
-	isFalling = false;
-
-	// Initialise arrays of scenery objects.
-	housePos_y = floorPos_y;
-	houseX=[50, 200, 400, 600];
-	clouds = [ 
-	{pos_x:150, pos_y:180 },
-	 {pos_x:300, pos_y:180 }, 
-	 {pos_x:450, pos_y:180 } 
-	 ];
-
-
-	mountain = [ { x_pos : 1, height : 150 }, { x_pos : 700, height : 135 }, {x_pos : 200,height : 200 }, {x_pos : 15, height : 150}, {x_pos : 250,height : 150}, {x_pos : 450,height : 150}, {x_pos : 650,height : 150}, {x_pos : 323,height : 150}]
-	tree = [
-
-	{
-	x_pos: 300,
-	y_pos: 350, 
-	size: 125 * random( 1, 4),
-	color1 : random( 0, 255),
-	randHeight1: random( 1, 3),
-	
-},
-
-	{
-	x_pos: 1,
-	y_pos: 350, 
-	size: 125 * random( 1, 4),
-	color1 : random( 0, 255),
-	randHeight1: random( 1, 3),
-	
-},
-{
-	x_pos: 150,
-	y_pos: 350, 
-	size: 125 * random( 1, 4),
-	color1 : random( 0, 255),
-	randHeight1: random( 1, 3),
-	
-},
-
-{
-	x_pos: 300,
-	y_pos: 350, 
-	size: 125 * random( 1, 4),
-	color1 : random( 0, 255),
-	randHeight1: random( 1, 3),
-	
-},
-
-{
-	x_pos: 450,
-	y_pos: 350, 
-	size: 125 * random( 1, 4),
-	color1 : random( 0, 255),
-	randHeight1: random( 1, 3),
-	
-},
-
-{
-	x_pos: 650,
-	y_pos: 350, 
-	size: 125 * random( 1, 4),
-	color1 : random( 0, 255),
-	randHeight1: random( 1, 3),
-	
-},
-
-{
-	x_pos: 350,
-	y_pos: 350, 
-	size: 125 * random( 1, 4),
-	color1 : random( 0, 255),
-	randHeight1: random( 1, 3),
-	
-},
-
-{
-	x_pos: 850,
-	y_pos: 350, 
-	size: 125 * random( 1, 4),
-	color1 : random( 0, 255),
-	randHeight1: random( 1, 3),
-	
-}
-]
-
-	for( var i = 0; i < 4; i++ ) {
-
-		clouds.push(
-		{
-			pos_x: i * random( 100, 200 ),
-			pos_y: random( floorPos_y - 100)
-					
-		}
-	);
-
-	}
-
-	for( var i = 0; i < 3; i++ ) {
-
-		mountain.push(
-		{
-
-			x_pos: i * random( 100, 500),
-			height : random(120, 200)
-
-		}
-
-			)
-	}
-
-	for( var i = 0; i < 3; i++ ) {
-
-		tree.push( 
-		{
-
-			x_pos: i * random(50, 400),
-			y_pos: 350,
-			size: 125 * random( 1, 4),
-			color1: random(0, 255),
-			randHeight1: random( 1, 3)
-		}
-
-
-			)
-	}
-
-	for( var i = 0; i < 3; i++ ) {
-
-		houseX.push(i * random(20, 600));
-	}
-
+	startGame();
 }
 
 function draw()
 {
-	background(170); // fill the sky blue
+	background(170); // fill the sky grey
 
 	noStroke();
 	fill(80);
-	rect(0, floorPos_y, width, height/4); // draw some green ground
+	rect(0, floorPos_y, width, height/4); // draw some ground
 
 	// Draw clouds.
 	push();
@@ -228,6 +99,7 @@ function draw()
   	drawClouds();
 
     pop();
+
 	// Draw mountains.
 
     push();
@@ -247,10 +119,16 @@ function draw()
     pop();
 
     // Draw canyon
+
     push();
     translate(scrollPos,0);
-    drawCanyon(canyon);
-    checkCanyon(canyon);
+
+    for( var i = 0; i < canyon.length; i++ ) {
+
+
+    drawCanyon(canyon[i]);
+    checkCanyon(canyon[i]);
+}
     pop();
 
 	// Draw houses.
@@ -263,12 +141,20 @@ function draw()
     pop();
 		
 	// Draw pickup items.
+
 	push();
 	translate(scrollPos,0);
-	drawTotem(totem);
-	checkPickup(totem);
+
+	for( var i = 0; i < totems.length; i++ ) {
+
+	drawTotem(totems[i]);
+	checkPickup(totems[i]);
+
+}
 	pop();
+
 	// Draw game character.
+
 	drawGameChar();
 
 	// Logic to make the game character move or the background scroll.
@@ -314,6 +200,21 @@ function draw()
 
 	// Update real position of gameChar for collision detection.
 	realPos = gameChar_x - scrollPos;
+
+	scoreCounter(score);
+	checkPlayerWon();
+	checkPlayerDie();
+	if( lives > 0) {
+
+		if( lives == 2) startGame();
+		if( lives == 1 ) startGame();
+		if( lives == 0 ) startGame();
+		if( lives < 0 ) isLost = true;
+	}
+		
+
+
+
 }
 
 
@@ -846,13 +747,14 @@ function drawClouds() {
 
 	for( var i = 0; i < clouds.length;i++) {
 
-    	fill(130);
+    fill(130);
 	ellipse( clouds[i].pos_x - 10, clouds[i].pos_y, 20, 35);
 	ellipse( clouds[i].pos_x - 20, clouds[i].pos_y, 20, 35);
 	ellipse( clouds[i].pos_x + 10, clouds[i].pos_y, 20, 35);
 	ellipse( clouds[i].pos_x + 20, clouds[i].pos_y, 20, 35);
 	ellipse( clouds[i].pos_x, clouds[i].pos_y, 20, 35);
 	ellipse( clouds[i].pos_x, clouds[i].pos_y, 100, 20);
+
     }
 }
 
@@ -873,8 +775,6 @@ function drawMountains() {
 	strokeWeight(3);
  	triangle( mountain[i].x_pos + relative.mountain_x ,floorPos_y - mountain[i].height, mountain[i].x_pos + relative.mountain_x - 35 - mountain[i].height * 1/3, floorPos_y , mountain[i].x_pos + relative.mountain_x + 35 + mountain[i].height * 1/3, floorPos_y);
 	
-
- 
  // mountain top
  	fill( 30);
  	stroke(166, 34, 34);
@@ -884,20 +784,19 @@ function drawMountains() {
 	fill(220, 20, 60, 120);
 	ellipse( mountain[i].x_pos + relative.mountain_x, floorPos_y - mountain[i].height + relative.mountain_y, 9, 25);
 
-}
+	}
 }
 // Function to draw trees objects.
 function drawTrees() {
 
 	for(var i = 0; i< tree.length; i++) {
 
-	 fill(80);
+	fill(80);
  	noStroke();
 	
 	tree.size = 330 * tree[i].randHeight1;
  	
  	rect(tree[i].x_pos ,  tree[i].y_pos - tree.size * 1/4, 35, tree.size);
-    // relative.tree_x, relative.tree_y
  	fill(255);
  	stroke(tree[i].color1);
  	strokeWeight(3);
@@ -919,6 +818,7 @@ function drawTrees() {
  	vertex(tree[i].x_pos - relative.tree_x + 807, tree[i].y_pos - relative.tree_y + 286 - tree.size * 1/4);
  	vertex(tree[i].x_pos - relative.tree_x + 850, tree[i].y_pos - relative.tree_y + 322-  tree.size * 1/4);
  	endShape(CLOSE);
+
 	}
 
 
@@ -930,19 +830,22 @@ function drawHouses() {
 
 	 for( var i = 0; i < houseX.length; i++) {
 
-    	//frame
+    //frame
+
  	fill(100);
  	stroke(120);
 
  	rect(houseX[i] + 65,  housePos_y - 71, 120, 88);
 	
  // roof
+
  	stroke(0);
 	fill(170);
 	strokeWeight(3);
  	triangle(houseX[i] + 50, 361, houseX[i] + 197, 360, houseX[i] + 128, 255);
 	
  //  door
+
  	stroke(80);
 	strokeWeight(1);
  	rect(houseX[i] + 105, 408, 30, 40);
@@ -954,6 +857,7 @@ function drawHouses() {
  	
  
  // windows
+
 	fill(180, 100);
 	stroke(0);
 	
@@ -974,36 +878,33 @@ function drawHouses() {
 
 function drawCanyon(t_canyon)
 {
-	  //draw the canyon
-    fill(255);
+	//draw the canyon
+
+    fill(25);
     rect(t_canyon.x_pos, floorPos_y , t_canyon.width, height - floorPos_y);
 	
-
 }
 
 // Function to check character is over a canyon.
 
 function checkCanyon(t_canyon)
 {
+
 if( ( realPos >= t_canyon.x_pos ) && ( realPos <= t_canyon.x_pos + t_canyon.width ) && !isJumping ) {
 		
-		isFalling = true;
+	isFalling = true;
 		
 	} else {
+
 		if ( gameChar_y <= floorPos_y )
 		isFalling = false;
 	}
+
 	if( isFalling ) {
 		
-		if( realPos < t_canyon.x_pos ) {
-			
-			realPos = t_canyon.x_pos + 5;
-		}
+		if( realPos < t_canyon.x_pos ) realPos = t_canyon.x_pos + 5;
 		
-		if( realPos > t_canyon.x_pos + t_canyon.width ) {
-			
-			realPos = t_canyon.x_pos + t_canyon.width - 5;
-		}
+		if( realPos > t_canyon.x_pos + t_canyon.width ) realPos = t_canyon.x_pos + t_canyon.width - 5;
 		
 		gameChar_y += 5;
 		
@@ -1017,13 +918,16 @@ if( ( realPos >= t_canyon.x_pos ) && ( realPos <= t_canyon.x_pos + t_canyon.widt
 // Function to draw pick-up objects.
 
 function drawTotem(t_totem) {
+
 	if ( !t_totem.isFound) {
+
 	noFill();
  	stroke(255);
 	strokeWeight(4);
+
  	ellipse(t_totem.x_pos, t_totem.y_pos, t_totem.size, t_totem.size - 25);
  	ellipse(t_totem.x_pos, t_totem.y_pos - 20, t_totem.size - 10, t_totem.size - 30);
-   ellipse(t_totem.x_pos, t_totem.y_pos - 35, t_totem.size - 15, t_totem.size - 35 );
+   	ellipse(t_totem.x_pos, t_totem.y_pos - 35, t_totem.size - 15, t_totem.size - 35 );
  	ellipse(t_totem.x_pos - 2, t_totem.y_pos - 50, t_totem.size - 30, t_totem.size - 30);
  }
 }
@@ -1031,7 +935,205 @@ function drawTotem(t_totem) {
 function checkPickup(t_totem){
 
 	if( realPos >=t_totem.x_pos - 30 && realPos <= t_totem.x_pos + 30 
-		&& gameChar_y <= t_totem.y_pos && gameChar_y>= t_totem.y_pos - 70 ) t_totem.isFound = true;
+		&& gameChar_y <= t_totem.y_pos && gameChar_y>= t_totem.y_pos - 70 ) {
+
+		if(!t_totem.isFound) {
+
+		 t_totem.isFound = true;
+		 score++;
+
+		 console.log("Score is: " + score);
+
+		}
+		
+	}
+	
 }
 
-// Function to check character has picked up an item.
+// score counter
+
+function scoreCounter(score) {
+
+	text("Score:" + score, 10, 20);
+
+}
+
+// check if all items are picked up
+
+function checkPlayerWon() {
+
+	if( score == totems.length ) isWon = true;
+
+}
+
+function startGame(){
+
+	gameChar_x = width/2;
+	gameChar_y = floorPos_y;
+	isLost = false;
+
+	// Variable to control the background scrolling.
+
+	scrollPos = 0;
+
+	// Variable to store the real position of the gameChar in the game
+	// world. Needed for collision detection.
+
+	realPos = gameChar_x - scrollPos;
+
+	// Boolean variables to control the movement of the game character.
+
+	isLeft = false;
+	isRight = false;
+	isJumping = false;
+	isFalling = false;
+	score = 0;
+	isWon = false;
+
+	// Initialise arrays of scenery objects.
+
+	housePos_y = floorPos_y;
+	houseX=[50, 200, 400, 600];
+
+	clouds = [ 
+	{pos_x:150, pos_y:180 },
+	 {pos_x:300, pos_y:180 }, 
+	 {pos_x:450, pos_y:180 } 
+	 ];
+
+	mountain = [ { x_pos : 1, height : 150 }, { x_pos : 700, height : 135 }, {x_pos : 200,height : 200 }, {x_pos : 15, height : 150}, {x_pos : 250,height : 150}, {x_pos : 450,height : 150}, {x_pos : 650,height : 150}, {x_pos : 323,height : 150}]
+	tree = [
+
+	{
+	x_pos: 300,
+	y_pos: 350, 
+	size: 125 * random( 1, 4),
+	color1 : random( 0, 255),
+	randHeight1: random( 1, 3),
+	
+},
+
+	{
+	x_pos: 1,
+	y_pos: 350, 
+	size: 125 * random( 1, 4),
+	color1 : random( 0, 255),
+	randHeight1: random( 1, 3),
+	
+},
+{
+	x_pos: 150,
+	y_pos: 350, 
+	size: 125 * random( 1, 4),
+	color1 : random( 0, 255),
+	randHeight1: random( 1, 3),
+	
+},
+
+{
+	x_pos: 300,
+	y_pos: 350, 
+	size: 125 * random( 1, 4),
+	color1 : random( 0, 255),
+	randHeight1: random( 1, 3),
+	
+},
+
+{
+	x_pos: 450,
+	y_pos: 350, 
+	size: 125 * random( 1, 4),
+	color1 : random( 0, 255),
+	randHeight1: random( 1, 3),
+	
+},
+
+{
+	x_pos: 650,
+	y_pos: 350, 
+	size: 125 * random( 1, 4),
+	color1 : random( 0, 255),
+	randHeight1: random( 1, 3),
+	
+},
+
+{
+	x_pos: 350,
+	y_pos: 350, 
+	size: 125 * random( 1, 4),
+	color1 : random( 0, 255),
+	randHeight1: random( 1, 3),
+	
+},
+
+{
+	x_pos: 850,
+	y_pos: 350, 
+	size: 125 * random( 1, 4),
+	color1 : random( 0, 255),
+	randHeight1: random( 1, 3),
+	
+}
+]
+
+	for( var i = 0; i < 4; i++ ) {
+
+		clouds.push(
+		{
+			pos_x: i * random( 100, 200 ),
+			pos_y: random( floorPos_y - 100)
+					
+		}
+	);
+
+	}
+
+	for( var i = 0; i < 3; i++ ) {
+
+		mountain.push(
+		{
+
+			x_pos: i * random( 100, 500),
+			height : random(120, 200)
+
+		}
+
+			)
+	}
+
+	for( var i = 0; i < 3; i++ ) {
+
+		tree.push( 
+		{
+
+			x_pos: i * random(50, 400),
+			y_pos: 350,
+			size: 125 * random( 1, 4),
+			color1: random(0, 255),
+			randHeight1: random( 1, 3)
+		}
+
+
+			)
+	}
+
+	for( var i = 0; i < 3; i++ ) {
+
+		houseX.push(i * random(20, 600));
+		
+	}
+
+}
+
+function checkPlayerDie() {
+
+	if( gameChar_y > floorPos_y ) lives --;
+
+}
+
+function nextLevel()
+{
+    // DO NOT CHANGE THIS FUNCTION!
+
+    console.log('next level');
+}
