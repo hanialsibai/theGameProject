@@ -81,6 +81,7 @@ function setup()
 	createCanvas(1024, 576);
 	lives = 3;
 	floorPos_y = height * 3/4;
+	score = 0;
 	startGame();
 }
 
@@ -156,6 +157,10 @@ function draw()
 	// Draw game character.
 
 	drawGameChar();
+	textSize(32);
+	stroke(255);
+	if(isLost == true ) text("Game over - you lost. Press space to continue", 200, height/2);
+	if(isWon == true ) text("Game over - you won. Press space to continue", 200, height/2);
 
 	// Logic to make the game character move or the background scroll.
 	if(isLeft)
@@ -204,13 +209,8 @@ function draw()
 	scoreCounter(score);
 	checkPlayerWon();
 	checkPlayerDie();
-	if( lives > 0) {
 
-		if( lives == 2) startGame();
-		if( lives == 1 ) startGame();
-		if( lives == 0 ) startGame();
-		if( lives < 0 ) isLost = true;
-	}
+	text("Lives:" + lives, 950, 20);
 		
 
 
@@ -226,6 +226,14 @@ function keyPressed(){
 
 		// console.log(keyCode);
 		// console.log(key);
+		if(isLost || isWon)
+{
+    if(key == ' ')
+    {
+        nextLevel();
+    }
+    return;
+}
 
 	if(key == 'A' || keyCode == 37)
 	{
@@ -962,16 +970,21 @@ function scoreCounter(score) {
 
 function checkPlayerWon() {
 
-	if( score == totems.length ) isWon = true;
+	if( score == totems.length ) {
 
+
+	 isWon = true;
+	 console.log("You won!");
+	}
 }
 
 function startGame(){
 
+	
 	gameChar_x = width/2;
 	gameChar_y = floorPos_y;
+	isWon = false;
 	isLost = false;
-
 	// Variable to control the background scrolling.
 
 	scrollPos = 0;
@@ -987,8 +1000,7 @@ function startGame(){
 	isRight = false;
 	isJumping = false;
 	isFalling = false;
-	score = 0;
-	isWon = false;
+	
 
 	// Initialise arrays of scenery objects.
 
@@ -1127,8 +1139,18 @@ function startGame(){
 
 function checkPlayerDie() {
 
-	if( gameChar_y > floorPos_y ) lives --;
+	if( gameChar_y > height ) {
+		console.log("You died.");
+		if( lives > 0 ) {
 
+		lives --;
+		startGame();
+
+		} else {
+			isLost = true;
+
+		}
+	}
 }
 
 function nextLevel()
