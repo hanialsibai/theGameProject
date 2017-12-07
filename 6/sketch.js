@@ -209,7 +209,7 @@ function draw()
 	scoreCounter(score);
 	checkPlayerWon();
 	checkPlayerDie();
-
+	textSize(20);
 	text("Lives:" + lives, 950, 20);
 		
 
@@ -961,7 +961,7 @@ function checkPickup(t_totem){
 // score counter
 
 function scoreCounter(score) {
-
+	textSize(20);
 	text("Score:" + score, 10, 20);
 
 }
