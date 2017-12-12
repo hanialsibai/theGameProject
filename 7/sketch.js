@@ -76,6 +76,7 @@ var isLost;
 var score;
 var isWon;
 var enemies;
+var alternate;
 
 function setup()
 {	
@@ -83,6 +84,8 @@ function setup()
 	lives = 3;
 	floorPos_y = height * 3/4;
 	score = 0;
+	// set the state of the enemies
+	alternate = true;
 	startGame();
 }
 
@@ -160,12 +163,15 @@ function draw()
 	drawGameChar();
 	
 	// Draw enemies
-
+	
+        	
 	for( var i = 0; i < enemies.length; i++ ) {
 
 		push();
 		translate(scrollPos, 0);
 		enemies[i].display();
+		
+		enemies[i].move();
 		pop();
 	}
 
@@ -1154,32 +1160,70 @@ function startGame(){
         x_pos: 10,
         y_pos: floorPos_y,
         size: 30,
+        x1: 0,
+        x2: 50,
+        speed: 1,
         display: function()
         {
             // Draw enemy.
             fill([255, 0, 0]);
             ellipse(this.x_pos, this.y_pos, this.size);
+        },
+        move: function(){
+        	
+        	
+
+        	if( this.x_pos == this.x1 ) alternate = true;
+        	if( this.x_pos == this.x2 ) alternate = false;
+        	if( alternate ) this.x_pos += this.speed;
+        		else this.x_pos -= this.speed;
+        		console.log("ok");
         }
     }
 );
 
 }
+//step 5
+// function checkPlayerDie() {
 
-function checkPlayerDie() {
+// 	if( gameChar_y > height ) {
+// 		console.log("You died.");
+// 		if( lives > 0 ) {
 
-	if( gameChar_y > height ) {
-		console.log("You died.");
-		if( lives > 0 ) {
+// 		lives --;
+// 		startGame();
 
-		lives --;
-		startGame();
+// 		} else {
+// 			isLost = true;
 
-		} else {
-			isLost = true;
+// 		}
+// 	}
+// }
 
-		}
-	}
+function checkPlayerDie()
+{
+    if (gameChar_y > height)
+    {
+        playerDied();
+    }
 }
+
+function playerDied()
+{
+    console.log('player died!');
+    lives--;
+    if (lives > 0)
+    {
+        // Restart game.
+        startGame();
+    }
+    else
+    {
+        // Game over, player lost.
+        isLost = true;
+    }
+}
+
 
 function nextLevel()
 {
