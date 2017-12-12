@@ -1,8 +1,8 @@
 /*
 
-The Game Project 5 - Making a complete level
+The Game Project 7 - Making a complete level
 
-Week 7
+Week 12
 
 */
 // world variables
@@ -75,6 +75,7 @@ var isFalling;
 var isLost;
 var score;
 var isWon;
+var enemies;
 
 function setup()
 {	
@@ -157,8 +158,21 @@ function draw()
 	// Draw game character.
 
 	drawGameChar();
+	
+	// Draw enemies
+
+	for( var i = 0; i < enemies.length; i++ ) {
+
+		push();
+		translate(scrollPos, 0);
+		enemies[i].display();
+		pop();
+	}
+
+	//GamePlayLogic
 	textSize(32);
-	stroke(255);
+	stroke(180, 0, 0);
+
 	if(isLost == true ) text("Game over - you lost. Press space to continue", 200, height/2);
 	if(isWon == true ) text("Game over - you won. Press space to continue", 200, height/2);
 
@@ -980,7 +994,7 @@ function checkPlayerWon() {
 
 function startGame(){
 
-	
+	enemies = [];
 	gameChar_x = width/2;
 	gameChar_y = floorPos_y;
 	isWon = false;
@@ -1134,6 +1148,20 @@ function startGame(){
 		houseX.push(i * random(20, 600));
 		
 	}
+
+	enemies.push(
+    {
+        x_pos: 10,
+        y_pos: floorPos_y,
+        size: 30,
+        display: function()
+        {
+            // Draw enemy.
+            fill([255, 0, 0]);
+            ellipse(this.x_pos, this.y_pos, this.size);
+        }
+    }
+);
 
 }
 
