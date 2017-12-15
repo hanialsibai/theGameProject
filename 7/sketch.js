@@ -15,18 +15,22 @@ var housePos_y;
 var clouds;
 var mountain;
 var tree;
+var platforms;
+var isOnPlatform;
+var img;
+var img2;
 
 var canyon = [ 
  	{x_pos: 300, width: 100},
  	{x_pos: 15, width: 85},
- 	{x_pos: 600, width: 73},
- 	{x_pos: 900, width: 60}
+ 	{x_pos: 1000, width: 73},
+ 	{x_pos: 1500, width: 60}
  	]
 
 var totems = [ 
-	{x_pos: 100, y_pos: 450, size: 45, isFound: false},
-	{x_pos: 400, y_pos: 450, size: 35, isFound: false},
-	{x_pos: 800, y_pos: 450, size: 55, isFound: false}
+	{x_pos: -420, y_pos: 450, size: 45, isFound: false},
+	{x_pos: 200, y_pos: 450, size: 35, isFound: false},
+	{x_pos: 1300, y_pos: 450, size: 55, isFound: false}
 ]
 // character variables 
 
@@ -77,7 +81,11 @@ var score;
 var isWon;
 var enemies;
 var alternate;
+function preload(){ 
 
+	img = loadImage("img.png");
+	img2 = loadImage("img2.png");
+}
 function setup()
 {	
 	createCanvas(1024, 576);
@@ -86,7 +94,10 @@ function setup()
 	score = 0;
 	// set the state of the enemies
 	alternate = true;
+
+
 	startGame();
+	
 }
 
 function draw()
@@ -99,7 +110,7 @@ function draw()
 
 	// Draw clouds.
 	push();
-    translate(scrollPos * 0.3,0);
+    translate(scrollPos * 0.1,0);
 
   	drawClouds();
 
@@ -108,7 +119,7 @@ function draw()
 	// Draw mountains.
 
     push();
-    translate(scrollPos * 0.6,0);
+    translate(scrollPos * 0.2,0);
 
     drawMountains();
 
@@ -117,7 +128,7 @@ function draw()
 	// Draw trees.
 
     push();
-    translate(scrollPos * 0.8, 0);
+    translate(scrollPos * 0.3, 0);
 
     drawTrees();
 
@@ -126,7 +137,7 @@ function draw()
     // Draw canyon
 
     push();
-    translate(scrollPos,0);
+    translate(scrollPos  ,0);
 
     for( var i = 0; i < canyon.length; i++ ) {
 
@@ -139,7 +150,7 @@ function draw()
 	// Draw houses.
 
 	push();
-    translate(scrollPos, 0);
+    translate(scrollPos * 0.5, 0);
 
     drawHouses();
 
@@ -148,7 +159,7 @@ function draw()
 	// Draw pickup items.
 
 	push();
-	translate(scrollPos,0);
+	translate(scrollPos ,0);
 
 	for( var i = 0; i < totems.length; i++ ) {
 
@@ -169,9 +180,24 @@ function draw()
 
 		push();
 		translate(scrollPos, 0);
-		enemies[i].display();
-		
+		enemies[i].render();
 		enemies[i].move();
+		enemies[i].checkCharCollision();
+		pop();
+	}
+
+	// Draw platforms
+
+	isOnPlatform = false;
+
+	for( var i = 0; i < platforms.length; i++ ) {
+
+		push();
+		translate(scrollPos * 0.9, 0);
+
+		platforms[i].display();
+		platforms[i].checkCharOn();
+
 		pop();
 	}
 
@@ -187,11 +213,11 @@ function draw()
 	{
 			if(gameChar_x > width * 0.2)
 			{
-					gameChar_x -= 5;
+					gameChar_x -= 3;
 			}
 			else
 			{
-					scrollPos += 5;
+					scrollPos += 3;
 			}
 	}
 
@@ -199,16 +225,16 @@ function draw()
 	{
 			if(gameChar_x < width * 0.8)
 			{
-					gameChar_x  += 5;
+					gameChar_x  += 3;
 			}
 			else
 			{
-					scrollPos -= 5; // negative for moving against the background
+					scrollPos -= 3; // negative for moving against the background
 			}
 	}
 
 	// Logic to make the game character rise and fall.
-	if(gameChar_y < floorPos_y)
+	if(gameChar_y  < floorPos_y  && !isOnPlatform)
 	{
 			gameChar_y += 2;
 			isJumping = true;
@@ -218,7 +244,7 @@ function draw()
 			isJumping = false;
 	}
 
-	if(isFalling)
+	if(isFalling )
 	{
 			gameChar_y += 5;
 	}
@@ -244,9 +270,7 @@ function draw()
 
 function keyPressed(){
 
-		// console.log(keyCode);
-		// console.log(key);
-		if(isLost || isWon)
+	if(isLost || isWon)
 {
     if(key == ' ')
     {
@@ -928,7 +952,7 @@ if( ( realPos >= t_canyon.x_pos ) && ( realPos <= t_canyon.x_pos + t_canyon.widt
 		isFalling = false;
 	}
 
-	if( isFalling ) {
+	if( isFalling && !isOnPlatform ) {
 		
 		if( realPos < t_canyon.x_pos ) realPos = t_canyon.x_pos + 5;
 		
@@ -1001,10 +1025,35 @@ function checkPlayerWon() {
 function startGame(){
 
 	enemies = [];
+	platforms = [];
 	gameChar_x = width/2;
 	gameChar_y = floorPos_y;
 	isWon = false;
 	isLost = false;
+
+	//Create enemies
+
+	enemies.push( new Enemy(100, floorPos_y - 20, 50, 150, 1));
+	enemies.push( new Enemy(1100, floorPos_y - 20, 50, 170, 1));
+	enemies.push( new Enemy(900, floorPos_y - 20, 50, 80, 2));
+	enemies.push( new Enemy(-320, floorPos_y - 20, 20, 50, 2));
+	enemies.push( new Enemy(-320, floorPos_y - 100, 50, 150, 0.9));
+
+
+	//Create platforms
+
+	platforms.push( new Platform( 720, floorPos_y - 50, 180, 15) );
+	platforms.push( new Platform( -300, floorPos_y - 50, 180, 13));
+
+
+
+
+
+	// Platform collision detection
+
+	isOnPlatform = false;
+
+
 	// Variable to control the background scrolling.
 
 	scrollPos = 0;
@@ -1025,7 +1074,7 @@ function startGame(){
 	// Initialise arrays of scenery objects.
 
 	housePos_y = floorPos_y;
-	houseX=[50, 200, 400, 600];
+	houseX=[0, 360, 520, 700];
 
 	clouds = [ 
 	{pos_x:150, pos_y:180 },
@@ -1033,11 +1082,11 @@ function startGame(){
 	 {pos_x:450, pos_y:180 } 
 	 ];
 
-	mountain = [ { x_pos : 1, height : 150 }, { x_pos : 700, height : 135 }, {x_pos : 200,height : 200 }, {x_pos : 15, height : 150}, {x_pos : 250,height : 150}, {x_pos : 450,height : 150}, {x_pos : 650,height : 150}, {x_pos : 323,height : 150}]
+	mountain = [ { x_pos : 1, height : 150 }, { x_pos : 50, height : 135 }, {x_pos : 150,height : 200 }, {x_pos : 350, height : 150}, {x_pos : 550,height : 150}, {x_pos : 650,height : 150}, {x_pos : 850,height : 150}, {x_pos : 1023,height : 150}]
 	tree = [
 
 	{
-	x_pos: 300,
+	x_pos: 50,
 	y_pos: 350, 
 	size: 125 * random( 1, 4),
 	color1 : random( 0, 255),
@@ -1046,7 +1095,7 @@ function startGame(){
 },
 
 	{
-	x_pos: 1,
+	x_pos: 100,
 	y_pos: 350, 
 	size: 125 * random( 1, 4),
 	color1 : random( 0, 255),
@@ -1054,7 +1103,7 @@ function startGame(){
 	
 },
 {
-	x_pos: 150,
+	x_pos: 200,
 	y_pos: 350, 
 	size: 125 * random( 1, 4),
 	color1 : random( 0, 255),
@@ -1090,7 +1139,7 @@ function startGame(){
 },
 
 {
-	x_pos: 350,
+	x_pos: 850,
 	y_pos: 350, 
 	size: 125 * random( 1, 4),
 	color1 : random( 0, 255),
@@ -1099,7 +1148,7 @@ function startGame(){
 },
 
 {
-	x_pos: 850,
+	x_pos: 950,
 	y_pos: 350, 
 	size: 125 * random( 1, 4),
 	color1 : random( 0, 255),
@@ -1112,7 +1161,7 @@ function startGame(){
 
 		clouds.push(
 		{
-			pos_x: i * random( 100, 200 ),
+			pos_x: i * 250,
 			pos_y: random( floorPos_y - 100)
 					
 		}
@@ -1138,7 +1187,7 @@ function startGame(){
 		tree.push( 
 		{
 
-			x_pos: i * random(50, 400),
+			x_pos: i * 300,
 			y_pos: 350,
 			size: 125 * random( 1, 4),
 			color1: random(0, 255),
@@ -1149,56 +1198,87 @@ function startGame(){
 			)
 	}
 
-	for( var i = 0; i < 3; i++ ) {
+	
 
-		houseX.push(i * random(20, 600));
+		houseX.push(i * random(50, 100));
 		
-	}
+	
 
-	enemies.push(
-    {
-        x_pos: 10,
-        y_pos: floorPos_y,
-        size: 30,
-        x1: 0,
-        x2: 50,
-        speed: 1,
-        display: function()
-        {
-            // Draw enemy.
-            fill([255, 0, 0]);
-            ellipse(this.x_pos, this.y_pos, this.size);
-        },
-        move: function(){
-        	
-        	
-
-        	if( this.x_pos == this.x1 ) alternate = true;
-        	if( this.x_pos == this.x2 ) alternate = false;
-        	if( alternate ) this.x_pos += this.speed;
-        		else this.x_pos -= this.speed;
-        		console.log("ok");
-        }
-    }
-);
 
 }
-//step 5
-// function checkPlayerDie() {
 
-// 	if( gameChar_y > height ) {
-// 		console.log("You died.");
-// 		if( lives > 0 ) {
+function Enemy(x, y, startPoint, endPoint, speed) {
 
-// 		lives --;
-// 		startGame();
+	this.x_pos = x;
+	this.y_pos = y;
+	
+	this.x1 = startPoint;
+	this.x2 = endPoint;
+	this.speed = speed;
 
-// 		} else {
-// 			isLost = true;
+	this.render = function() {
 
-// 		}
-// 	}
-// }
+
+        if(alternate)
+        image(img2, this.x_pos, this.y_pos);
+    	else image(img, this.x_pos, this.y_pos);
+            
+        }
+
+    this.move = function() {
+
+        if( this.x_pos == this.x1 ) alternate = true;
+        if( this.x_pos == this.x2 ) alternate = false;
+
+        if( alternate ) this.x_pos += this.speed;
+
+        	else this.x_pos -= this.speed;
+        		
+        }
+
+    this.checkCharCollision = function() {
+
+
+        if( realPos >= ( this.x_pos ) && realPos <= (this.x_pos  + 50 ) // left-right detection
+
+        && gameChar_y <= ( this.y_pos  + 50 ) && gameChar_y >= ( this.y_pos  ) ) { // top/bottom detection
+        		
+        playerDied();
+
+        	}
+        }
+}
+
+function Platform( x, y, width, height ) {
+
+	this.x_pos = x;
+	this.y_pos = y;
+	this.width = width;
+	this.height = height;
+
+	this.display = function() {
+
+		 // Draw platform.
+            fill([120, 0, 0]);
+            rect(this.x_pos, this.y_pos, this.width, this.height);
+            line(this.x_pos,
+                 this.y_pos + this.height / 2,
+                 this.x_pos + this.width,
+                 this.y_pos + this.height / 2);
+	}
+
+	this.checkCharOn = function () {
+
+		if( realPos >= this.x_pos && realPos <= ( this.x_pos + width ) &&
+			gameChar_y <= this.y_pos - 34 && gameChar_y >= this.y_pos - 35) {
+
+			isOnPlatform = true;
+		}
+	}
+
+
+}
+
 
 function checkPlayerDie()
 {
@@ -1211,9 +1291,10 @@ function checkPlayerDie()
 function playerDied()
 {
     console.log('player died!');
-    lives--;
+    
     if (lives > 0)
     {
+    	lives--;
         // Restart game.
         startGame();
     }
