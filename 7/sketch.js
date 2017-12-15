@@ -181,7 +181,8 @@ function draw()
 		push();
 		translate(scrollPos, 0);
 		enemies[i].render();
-		enemies[i].move();
+		if( i != 4 ) enemies[i].move();
+			else enemies[i].moveUp();
 		enemies[i].checkCharCollision();
 		pop();
 	}
@@ -942,7 +943,7 @@ function drawCanyon(t_canyon)
 function checkCanyon(t_canyon)
 {
 
-if( ( realPos >= t_canyon.x_pos ) && ( realPos <= t_canyon.x_pos + t_canyon.width ) && !isJumping ) {
+if( ( realPos >= t_canyon.x_pos ) && ( realPos <= t_canyon.x_pos + t_canyon.width ) && !isJumping && !isOnPlatform) {
 		
 	isFalling = true;
 		
@@ -1037,13 +1038,14 @@ function startGame(){
 	enemies.push( new Enemy(1100, floorPos_y - 20, 50, 170, 1));
 	enemies.push( new Enemy(900, floorPos_y - 20, 50, 80, 2));
 	enemies.push( new Enemy(-320, floorPos_y - 20, 20, 50, 2));
-	enemies.push( new Enemy(-320, floorPos_y - 100, 50, 150, 0.9));
+	enemies.push( new Enemy(-340, floorPos_y - 100,  0 ,500, 0.9));
 
 
 	//Create platforms
 
 	platforms.push( new Platform( 720, floorPos_y - 50, 180, 15) );
-	platforms.push( new Platform( -300, floorPos_y - 50, 180, 13));
+	platforms.push( new Platform( -280, floorPos_y - 50, 180, 13));
+	platforms.push( new Platform( 180, floorPos_y - 50, 180, 13));
 
 
 
@@ -1074,7 +1076,7 @@ function startGame(){
 	// Initialise arrays of scenery objects.
 
 	housePos_y = floorPos_y;
-	houseX=[0, 360, 520, 700];
+	houseX=[- 400, 60,750, 1000, 1200];
 
 	clouds = [ 
 	{pos_x:150, pos_y:180 },
@@ -1200,7 +1202,7 @@ function startGame(){
 
 	
 
-		houseX.push(i * random(50, 100));
+		houseX.push(i * random(100, 200));
 		
 	
 
@@ -1235,6 +1237,17 @@ function Enemy(x, y, startPoint, endPoint, speed) {
         	else this.x_pos -= this.speed;
         		
         }
+
+    this.moveUp = function() {
+
+    	if( this.y_pos == this.x1 ) alternate = true;
+        if( this.y_pos == this.x2 ) alternate = false;
+
+        if( alternate ) this.y_pos += this.speed;
+
+        	else this.y_pos -= this.speed;
+
+    }
 
     this.checkCharCollision = function() {
 
